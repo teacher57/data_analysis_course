@@ -69,6 +69,19 @@ def move_centers(df, centers): # df - DataFrame, centers - DataFrame
     return centers + res_vectors
 
 def clusterize(df, centers): # df - DataFrame, centers - DataFrame
+    df["cluster"] = Series([nan] * df.shape[0])
+    
     for i in range(df.shape[0]):
         df.at[i, "cluster"] = get_closest_center(df.iloc[i, :-1], centers)
     return df
+    
+
+#print(centers_test.shape)
+
+#clusterize(df, centers_test)
+#print(clusterize1(df, centers_test))
+
+#print(get_closest_center(point_test, centers_test))
+#print(move_centers(df, centers_test))
+
+
