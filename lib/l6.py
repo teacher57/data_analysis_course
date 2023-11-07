@@ -2,9 +2,9 @@ from numpy import nan, sqrt, array
 from pandas import Series, DataFrame
 from random import uniform, gauss, randint, random, seed
 
-def gen(N_AXES=2, N_CLUSTERS=3, N_ROWS=1000, seed_=57):
+def gen(N_AXES=2, N_CLUSTERS=3, N_ROWS=1000, s=57):
     
-    seed(seed_)
+    seed(s)
 
     sigmas = array([randint(5, 10) for i in range(N_CLUSTERS)])
     centers = array([[random() * 100 for i in range(N_AXES)] for i in range(N_CLUSTERS)])
@@ -44,7 +44,7 @@ def distance(a, b): # a, b - Series
     
     return sqrt(s)
 
-def create_centers(df, n_rows): # arr - DataFrame, n - int
+def create_centers(df, n_rows): # df - DataFrame, n - int
     if "cluster" in df.columns:
         df.drop("cluster", axis=1, inplace=True)
         
@@ -61,9 +61,6 @@ def create_centers(df, n_rows): # arr - DataFrame, n - int
 
 def get_closest_center(a, centers): # a - Series, centers – DataFrame
     distances = [distance(a, centers.iloc[i]) for i in range(centers.shape[0])]
-    
-    if 0 in distances:
-        print(a, centers)
     
     min_index = 0
     min_d = distances[min_index]
@@ -97,9 +94,18 @@ def move_centers(df, centers): # df - DataFrame, centers - DataFrame
     return centers + res_vectors
 
 def clusterize(df, centers): # df - DataFrame, centers - DataFrame
+    df["cluster"] = Series([nan] * df.shape[0])
+        
     for i in range(df.shape[0]):
-        df.at[i, "cluster"] = get_closest_center(df.iloc[i, :-1], centers)
+        df.at[i, "cluster"] = get_closest_center(df.iloc[i], centers)
+    df["cluster"] = df["cluster"].astype("int")
     return df
+
+def get_centers(df, n, iter=10):
+    centers = create_centers(df, n)
+    for i in range(iter):
+        centers = move_centers(df, centers)
+    return centers
     
 
 
